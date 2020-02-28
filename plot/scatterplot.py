@@ -2,38 +2,50 @@
 Generates scatterplot of any 2-dimentional data.
 TODO:
 - use pass data through sys args
-- use argparse to determine data format (pickle, dataframe, np array, Collection, etc.)
+- use argparse to determine data format (pickle, dataframe, np array, Collection, csv, etc.)
+- error handling for incorrect/insufficent args
+- "has_headers" args
 """
 
+import argparse
 import plotly.express as px
 import pandas as pd
 
-def generate_scatterplot(df):
+def generate_scatterplot(df, x, y):
     print("Generating scatterplot for data:")
     print(df)
 
-    fig = px.scatter(df, x=columns[0], y=columns[1])
+    fig = px.scatter(df, x=x, y=y)
     fig.show()
 
 
-def main(data, columns):
-    df = pd.DataFrame.from_dict(data, orient='index', columns=columns)
-    generate_scatterplot(df)
+def main(data, x, y, data_format, from_pickle=False):
+    if from_pickle:
+        data = pd.read_pickle(data)
+
+    if data_format is 'dict':
+        df = pd.DataFrame.from_dict(data, orient='index', columns=[x, y])
+    if data_format is 'df':
+        df = data
+    
+    generate_scatterplot(df, x, y)
 
 if __name__ == '__main__':
-    COLUMNS = ['length', 'time']
-    DATA = {
-        0:[15,0.04],
-        1:[16,0.08],
-        2:[17,0.14],
-        3:[18,0.41],
-        4:[19,0.77],
-        5:[20,1.36],
-        6:[21,3.28],
-        7:[22,6.42],
-        8:[23,10.83],
-        9:[24,21.15],
-        10:[25,39.99],
-    }
+    parser = argparse.ArgumentParser(description='Generate scatterplot of 2-dimentional data.')
+    parser.add_argument('path', help='path to data file')
+    parser.add_argument('x', help='x-axis of data')
+    parser.add_argument('y', help='y-axis of data')
+    parser.add_argument(
+        '--format',
+        help='data format (accepts: {dict, df}).',
+        default='df'
+        )
+    parser.add_argument(
+        '--pickle',
+        help='indicates data file is pickled.',
+        action="store_true"
+        )
 
-    main(DATA, COLUMNS)
+    args = parser.parse_args()
+
+    main(args.path, x=args.x, y=args.y, data_format=args.format, from_pickle=args.pickle)
