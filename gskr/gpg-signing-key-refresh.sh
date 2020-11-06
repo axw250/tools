@@ -11,7 +11,7 @@ echo "
 "
 
 echo "GPG Signing Key Bot"
-echo "Automates setup of GPG signing keys for GitHub commits based on:"
+echo "Automates setup of GPG signing keys for Git commits based on:"
 echo "https://docs.github.com/en/free-pro-team@latest/github/authenticating-to-github/about-commit-signature-verification"
 echo "🧠 Loading..."
 
@@ -150,6 +150,7 @@ echo "📋 Paste above's ASCII armor key"
 # Tell Git about key
 echo
 echo "${standout_text}TELLING GIT ABOUT KEY${rm_standout_text}"
+# TODO: ask user whether they want to set signingkey globally
 git config --global user.signingkey $NEW_KEY
 
 # Sign commits by default
@@ -184,7 +185,7 @@ while true; do
     esac
 done
 
-# Tell Git about key
+# Summary
 echo
 echo "${standout_text}SUMMARY${rm_standout_text}"
 echo "Deleted key(s): ${red_text}$OLD_KEYS${reset_text}"
