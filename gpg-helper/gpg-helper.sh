@@ -143,7 +143,7 @@ echo ${reset_text}
 
 echo "${standout_text}ADD KEY TO YOUR GITHUB ACCOUNT${rm_standout_text}"
 echo "🌐 Navigate to http://github.com/settings/keys"
-echo "❌ Delete expired GPG key(s)"
+# echo "❌ Delete expired GPG key(s)" old key deletion no longer recommended
 echo "👆 Create new GPG key"
 echo "📋 Paste above's ASCII armor key"
 
