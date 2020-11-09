@@ -36,23 +36,32 @@ echo ${reset_text}
 # Delete current key(s)
 echo
 echo "${standout_text}DELETE OLD KEYS${rm_standout_text}"
+echo "Copy secret key ID(s) from the list above."
+echo ${yellow_text}${bold_text}
+echo "Example:"
+echo ">  /path/to/user/.gnupg/pubring.kbx"
+echo ">  ----------------------------------"
+echo ">  sec   ed25519/${standout_text}718AB54112A480E4${rm_standout_text} 2020-11-06 [SC] [expires: 2021-02-04]"
+echo ">        F1AC32932E69628FA90CB395718AB54112A480E4"
+echo ">  uid                 [ultimate] First Last <your.email@address.com>"
+echo ">  ssb   cv25519/CB52639C9C0155FB 2020-11-06 [E] [expires: 2021-02-04]"
+echo ${reset_text}
 echo "📋 Paste all key ids you would like to delete (separated by spaces):"
 echo -n "> "
 read OLD_KEYS
 
 for key in $OLD_KEYS; do
-    echo "❓ Would you like to delete this key (y/N)?"
-    echo "${red_text}$key${reset_text}"
-    echo -n "> "
+    echo -n "❓ Would you like to delete ${red_text}$key${reset_text}? (y/N) "
     while true; do
         read DELETE
         case $DELETE in
         [yY]*)
             echo ${cyan_text}
+            echo "${standout_text}GPG KEY DELETION DIALOG${rm_standout_text}"
             gpg --delete-secret-keys $key
             gpg --delete-keys $key
             echo ${reset_text}
-            echo "Key deleted"
+            # TODO: read exit code (i.e. case $1 in... esac) to handle deletion completion message (i.e. deletion successful vs aborted)
             break
             ;;
         [nN]*)
@@ -70,8 +79,7 @@ done
 
 # Generate a new key
 echo
-echo "❔ Would you like to generate a new key (y/N)?"
-echo -n "> "
+echo -n "❔ Would you like to generate a new key? (y/N) "
 while true; do
     read GENERATE_NEW_KEY
     case $GENERATE_NEW_KEY in
@@ -154,7 +162,16 @@ echo "${standout_text}TELLING GIT ABOUT KEY${rm_standout_text}"
 git config --global user.signingkey $NEW_KEY
 
 # Sign commits by default
-echo "❔ Would you like to sign commits by default (y/N)?"
+# TODO: refactor as multiple-choice to accomodate options for:
+#       (1) always (global)
+#           -> git config --global commit.gpgsign true
+#       (2) always (specific repo(s) - promt for path(s))
+#           NOTE: handle OS-specific path styles
+#           -> CURRENT_PATH=$PWD && read REPO_PATH &&
+#           -> cd $REPO_PATH && git config commit.gpgsign true &&
+#           -> cd $CURRENT_PATH
+#       (3) never -> break
+echo -n "❔ Would you like to sign commits by default? (y/N) "
 while true; do
     read SIGN_BY_DEFAULT
     case $SIGN_BY_DEFAULT in
