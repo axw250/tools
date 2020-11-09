@@ -33,6 +33,8 @@ echo "${standout_text}GPG SIGNING KEYS LIST${rm_standout_text}"
 gpg --list-secret-keys --keyid-format LONG
 echo ${reset_text}
 
+# TODO: Refresh expired key (e.g. gpg --edit-key <key_id>)
+
 # Delete current key(s)
 echo
 echo "${standout_text}DELETE OLD KEYS${rm_standout_text}"
@@ -74,8 +76,6 @@ for key in $OLD_KEYS; do
         esac
     done
 done
-
-
 
 # Generate a new key
 echo
