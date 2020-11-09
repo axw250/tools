@@ -17,7 +17,7 @@ echo "🧠 Loading..."
 
 # Import global styles
 echo "🎨 Importing styles..."
-source ~/Tools/bash_styles.sh
+source ./bash_styles.sh
 echo "✅ Ready"
 
 echo

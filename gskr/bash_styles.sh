@@ -1,3 +1,6 @@
+#!/bin/bash
+
+# Define styles
 black_text=`tput setaf 0`
 red_text=`tput setaf 1`
 green_text=`tput setaf 2`
