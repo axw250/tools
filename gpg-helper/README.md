@@ -1,6 +1,6 @@
 # GPG Helper: A GPG Signing Key Bot
 
-A bash script automating GPG signing keys setup for Git commits based on [the GitHub docs](https://docs.github.com/en/free-pro-team@latest/github/authenticating-to-github/about-commit-signature-verification).
+A [Bash](https://www.gnu.org/software/bash/) script automating GPG signing keys setup for Git commits based on [the GitHub docs](https://docs.github.com/en/free-pro-team@latest/github/authenticating-to-github/about-commit-signature-verification).
 
 The script walks users through steps to generate new GPG signing keys, linking the new keys to their GitHub accounts, and updating local Git configs.
 

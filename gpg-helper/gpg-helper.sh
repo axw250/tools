@@ -26,6 +26,12 @@ echo "GSKB main output"
 echo "${yellow_text}${bold_text}Example output${reset_text}"
 echo "${cyan_text}GPG output${reset_text}"
 
+# TODO: read user input for what actions to take
+#       (1) Generate new key(s)
+#       (2) Refresh expired key(s)
+#       (3) Delete existing key(s)
+#       (4) Update Git signingkey defaults (global and repo-specific)
+#       (5) Review current key(s) and configs
 
 # Print current keys
 echo ${cyan_text}
@@ -95,7 +101,7 @@ while true; do
         echo "> Your Name"
         echo "> your.email@address.com"
         echo "> (optional)"
-        echo "> Okay"
+        echo "> (O)kay"
         echo ${reset_text}
 
         echo ${cyan_text}
@@ -151,7 +157,7 @@ echo ${reset_text}
 
 echo "${standout_text}ADD KEY TO YOUR GITHUB ACCOUNT${rm_standout_text}"
 echo "🌐 Navigate to http://github.com/settings/keys"
-# echo "❌ Delete expired GPG key(s)" old key deletion no longer recommended
+# echo "❌ Delete expired GPG key(s)" # OLD KEY DELETION NOT RECOMMENDED
 echo "👆 Create new GPG key"
 echo "📋 Paste above's ASCII armor key"
 
