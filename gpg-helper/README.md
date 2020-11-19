@@ -47,15 +47,18 @@ It is recommended that you use [Git Bash](https://gitforwindows.org/). Alternati
 
 Bonus: check out the new [Windows Terminal](https://github.com/microsoft/terminal).
 
-## Features
+## What can/should it do?
 
-| Feature                 | Progress |
-| ----------------------- | -------- |
-| List current key(s)     | Done     |
-| Refresh expired key(s)  | To-do    |
-| Delete local key(s)     | Done     |
-| Generate new key        | Done     |
-| Capture new key         | Done     |
-| Add key(s) to GitHub    | Done     |
-| Add key to Git (global) | Done     |
-| Add key to Git (local)  | To-do    |
+| Capability                                                                                                                             | Development progress |
+| -------------------------------------------------------------------------------------------------------------------------------------- | -------------------- |
+| List current key(s)                                                                                                                    | Done ✅              |
+| Refresh expired key(s)                                                                                                                 | To-do 🆕             |
+| Delete local key(s)                                                                                                                    | Done ✅              |
+| Generate (and capture) new key                                                                                                         | Done ✅              |
+| Add key(s) to GitHub (instructions for manual addition)                                                                                | Done ✅              |
+| Add key(s) to GitHub ([programmatically](https://developer.github.com/v3/users/gpg_keys/#create-a-gpg-key-for-the-authenticated-user)) | To-do 🆕             |
+| Add key(s) to other remote (BitBucket, GitLab, etc.)                                                                                   | To-do 🆕             |
+| Add key to Git (globally)                                                                                                              | Done ✅              |
+| Add key to Git (specific local repos)                                                                                                  | To-do 🆕             |
+| Configure default commit signing                                                                                                       | Done ✅              |
+| Menu loop for dynamic user interaction                                                                                                 | To-do 🆕             |
