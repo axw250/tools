@@ -186,6 +186,15 @@ sign_commits_by_default() {
 	done
 }
 
+print_summary() {
+	# Summary
+	echo
+	echo "${standout_text}SUMMARY${rm_standout_text}"
+	echo "Deleted key(s): ${red_text}$OLD_KEYS${reset_text}"
+	echo "New key: ${green_text}$NEW_KEY${reset_text}"
+	echo "Sign commits by default: ${blue_text}${SIGN_BY_DEFAULT}${reset_text}"
+}
+
 #####################################################################
 # Start of main program 
 
@@ -223,15 +232,41 @@ echo "${cyan_text}GPG output${reset_text}"
 #       (4) Update Git signingkey defaults (global and repo-specific)
 #       (5) Review current key(s) and configsprint_keys
 
-delete_keys
-generate_new_key
-add_key_to_github
-sign_commits_by_default
+PS3="What would you like to do?"
+actions=("List Keys" "Delete Keys" "Generate New Key" "Add Key to GitHub" "Sign Commits by Default" "Quit")
 
-
-# Summary
-echo
-echo "${standout_text}SUMMARY${rm_standout_text}"
-echo "Deleted key(s): ${red_text}$OLD_KEYS${reset_text}"
-echo "New key: ${green_text}$NEW_KEY${reset_text}"
-echo "Sign commits by default: ${blue_text}${SIGN_BY_DEFAULT}${reset_text}"
+# While loop needed to force re-display of entire menu
+while true
+do
+	echo
+	select action in "${actions[@]}"
+	do
+		case $action in
+			"List Keys")
+				print_keys
+				break
+				;;
+			"Delete Keys")
+				delete_keys
+				break
+				;;
+			"Generate New Key")
+				generate_new_key
+				break
+				;;
+			"Add Key to GitHub")
+				add_key_to_github
+				break
+				;;
+			"Sign Commits by Default")
+				sign_commits_by_default
+				break
+				;;
+			"Quit")
+				print_summary
+				exit
+				;;
+			*) echo "Invalid option $REPLY";;
+		esac
+	done
+done
