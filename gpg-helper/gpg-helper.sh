@@ -37,7 +37,7 @@ delete_keys() {
 	echo "${standout_text}DELETE OLD KEYS${rm_standout_text}"
 	echo "Copy secret key ID(s) from the list above."
 	print_example_keyid
-    
+
 	echo "📋 Paste all key ids you would like to delete (separated by spaces):"
 	echo -n "> "
 	read OLD_KEYS
@@ -228,7 +228,7 @@ echo "${cyan_text}GPG output${reset_text}"
 #       (5) Review current key(s) and configsprint_keys
 
 PS3="What would you like to do? "
-actions=("List Keys" "Delete Keys" "Generate New Key" "Add Key to GitHub" "Update Git Configs" "Quit")
+actions=("List Keys" "Refresh keys" "Delete Keys" "Generate New Key" "Add Key to GitHub" "Update Git Configs" "Quit")
 
 # While loop needed to force re-display of entire menu
 while true
@@ -241,6 +241,10 @@ do
 				print_keys
 				break
 				;;
+            "Refresh Keys")
+                refresh_keys
+                break
+                ;;
 			"Delete Keys")
 				delete_keys
 				break
