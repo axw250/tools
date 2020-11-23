@@ -1,7 +1,7 @@
 #!/bin/bash
 
 print_version() {
-	echo "Version: 0.0.3"
+	echo "Version: 0.0.4"
 }
 
 print_keys() {
@@ -12,16 +12,13 @@ print_keys() {
 	echo ${reset_text}
 }
 
-# TODO: Refresh expired key (e.g. gpg --edit-key <key_id>)
+refresh_keys() {
+    # TODO: Refresh expired key (e.g. gpg --edit-key <key_id>)
+    echo "Which key would you like to refresh?"
+}
 
-delete_keys() {
-	print_keys
-	
-	# Delete current key(s)
-	echo
-	echo "${standout_text}DELETE OLD KEYS${rm_standout_text}"
-	echo "Copy secret key ID(s) from the list above."
-	echo ${yellow_text}${bold_text}
+print_example_keyid() {
+    echo ${yellow_text}${bold_text}
 	echo "Example:"
 	echo ">  /path/to/user/.gnupg/pubring.kbx"
 	echo ">  ----------------------------------"
@@ -30,6 +27,17 @@ delete_keys() {
 	echo ">  uid                 [ultimate] First Last <your.email@address.com>"
 	echo ">  ssb   cv25519/CB52639C9C0155FB 2020-11-06 [E] [expires: 2021-02-04]"
 	echo ${reset_text}
+}
+
+delete_keys() {
+	print_keys
+
+	# Delete current key(s)
+	echo
+	echo "${standout_text}DELETE OLD KEYS${rm_standout_text}"
+	echo "Copy secret key ID(s) from the list above."
+	print_example_keyid
+    
 	echo "📋 Paste all key ids you would like to delete (separated by spaces):"
 	echo -n "> "
 	read OLD_KEYS
@@ -103,15 +111,8 @@ add_key_to_github() {
 
 	echo "${standout_text}CAPTURE NEW GPG KEY${rm_standout_text}"
 	echo "Copy the new secret key's ID from the updated list above."
-	echo ${yellow_text}${bold_text}
-	echo "Example:"
-	echo ">  /path/to/user/.gnupg/pubring.kbx"
-	echo ">  ----------------------------------"
-	echo ">  sec   ed25519/${standout_text}718AB54112A480E4${rm_standout_text} 2020-11-06 [SC] [expires: 2021-02-04]"
-	echo ">        F1AC32932E69628FA90CB395718AB54112A480E4"
-	echo ">  uid                 [ultimate] First Last <your.email@address.com>"
-	echo ">  ssb   cv25519/CB52639C9C0155FB 2020-11-06 [E] [expires: 2021-02-04]"
-	echo ${reset_text}
+	print_example_keyid
+
 	echo "📋 Paste the new key id:"
 	echo -n "> "
 	read NEW_KEY
@@ -137,7 +138,7 @@ add_key_to_github() {
 	git config --global user.signingkey $NEW_KEY
 }
 
-sign_commits_by_default() {
+update_git_configs() {
 	# Sign commits by default
 	# TODO: refactor as multiple-choice to accomodate options for:
 	#       (1) always (global)
@@ -227,7 +228,7 @@ echo "${cyan_text}GPG output${reset_text}"
 #       (5) Review current key(s) and configsprint_keys
 
 PS3="What would you like to do? "
-actions=("List Keys" "Delete Keys" "Generate New Key" "Add Key to GitHub" "Sign Commits by Default" "Quit")
+actions=("List Keys" "Delete Keys" "Generate New Key" "Add Key to GitHub" "Update Git Configs" "Quit")
 
 # While loop needed to force re-display of entire menu
 while true
@@ -252,8 +253,8 @@ do
 				add_key_to_github
 				break
 				;;
-			"Sign Commits by Default")
-				sign_commits_by_default
+			"Update Git Configs")
+				update_git_configs
 				break
 				;;
 			"Quit")
