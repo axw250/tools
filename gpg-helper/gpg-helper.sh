@@ -1,7 +1,7 @@
 #!/bin/bash
 
 print_version() {
-	echo "Version: 0.0.2"
+	echo "Version: 0.0.3"
 }
 
 print_keys() {
@@ -232,7 +232,7 @@ echo "${cyan_text}GPG output${reset_text}"
 #       (4) Update Git signingkey defaults (global and repo-specific)
 #       (5) Review current key(s) and configsprint_keys
 
-PS3="What would you like to do?"
+PS3="What would you like to do? "
 actions=("List Keys" "Delete Keys" "Generate New Key" "Add Key to GitHub" "Sign Commits by Default" "Quit")
 
 # While loop needed to force re-display of entire menu
