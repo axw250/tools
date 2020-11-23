@@ -88,13 +88,7 @@ generate_new_key() {
 			break
 			;;
 		[nN]*)
-			echo "Commits will not be signed by defult."
-			echo ${yellow_text}${bold_text}
-			echo "Sign commits with:"
-			echo ">  git commit -S -m \"Your commit message\""
-			echo "Enable default commit signing with:"
-			echo ">  git config --global commit.gpgsign true"
-			echo ${reset_text}
+			echo "Not generating new key."
 			break
 			;;
 		*)
