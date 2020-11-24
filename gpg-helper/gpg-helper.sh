@@ -106,6 +106,21 @@ generate_new_key() {
 	done
 }
 
+set_key() {
+	KEY="$1"
+	SET_GLOBAL="$2"
+	echo "${standout_text}TELLING GIT ABOUT KEY${rm_standout_text}"
+	if [ "$SET_GLOBAL" = "SET_GLOBAL" ]; then
+		git config --global user.signingkey $KEY
+	else
+		echo "Enter the path to the repo: "
+		read REPO_PATH
+		CURRENT_PATH="$PWD"
+		cd $REPO && git config user.signingkey $KEY
+		cd $CURRENT_PATH
+	fi
+}
+
 add_key_to_github() {
 	print_keys
 
@@ -131,11 +146,26 @@ add_key_to_github() {
 	echo "👆 Create new GPG key"
 	echo "📋 Paste above's ASCII armor key"
 
-	# Tell Git about key
 	echo
-	echo "${standout_text}TELLING GIT ABOUT KEY${rm_standout_text}"
-	# TODO: ask user whether they want to set signingkey globally
-	git config --global user.signingkey $NEW_KEY
+	PS3="What would you like to do with this key?"
+	key_options=("Set the key to sign globally" "Set the key to sign for a single repo" "Nothing")
+	select key_option in "${key_options[@]}"
+	do
+		case $key_option in
+			"Set the key to sign globally")
+				set_key $NEW_KEY "SET_GLOBAL"
+				break
+				;;
+			"Set the key to sign for a single repo")
+				set_key $NEW_KEY "SET_LOCAL"
+				break
+				;;
+			"Nothing")
+				break
+				;;
+		esac
+	done
+	echo "To set this key up for signing, select option \"(6) Update Git Configs\" in the menu"
 }
 
 prompt_for_key() {
@@ -148,16 +178,6 @@ prompt_for_key() {
 }
 
 update_git_configs() {
-	# Sign commits by default
-	# TODO: refactor as multiple-choice to accomodate options for:
-	#       (1) always (global)
-	#           -> git config --global commit.gpgsign true
-	#       (2) always (specific repo(s) - promt for path(s))
-	#           NOTE: handle OS-specific path styles
-	#           -> CURRENT_PATH=$PWD && read REPO_PATH &&
-	#           -> cd $REPO_PATH && git config commit.gpgsign true &&
-	#           -> cd $CURRENT_PATH
-	#       (3) never -> break
 	while true
     do
 	    PS3="What would you like to do? "
@@ -174,16 +194,11 @@ update_git_configs() {
 					do
 						case $key_action in
 							"Set the Key for Global Signing")
-								echo "${standout_text}TELLING GIT ABOUT KEY${rm_standout_text}"
-								git config --global user.signingkey $KEY_ID
+								set_key $KEY_ID "SET_GLOBAL"
 								break 2
 								;;
 							"Set the Key for a Single Repo")
-								echo "Enter the path to the repo: "
-								read REPO_PATH
-								CURRENT_PATH="$PWD"
-								cd $REPO_PATH && git config user.signingkey $KEY_ID
-								cd $CURRENT_PATH
+								set_key $NEW_KEY "SET_LOCAL"
 								break 2
 								;;
 							"Select a Different Key")
@@ -294,8 +309,6 @@ actions=("List Keys" "Refresh keys" "Delete Keys" "Generate New Key" "Add Key to
 # While loop needed to force re-display of entire menu
 while true
 do
-	PS3="What would you like to do? "
-	actions=("List Keys" "Refresh keys" "Delete Keys" "Generate New Key" "Add Key to GitHub" "Update Git Configs" "Quit")
 	echo
 	select action in "${actions[@]}"
 	do
