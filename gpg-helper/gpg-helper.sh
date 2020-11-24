@@ -138,6 +138,15 @@ add_key_to_github() {
 	git config --global user.signingkey $NEW_KEY
 }
 
+prompt_for_key() {
+	print_keys
+	echo "Copy the secret key ID from the list above."
+	print_example_keyid
+	echo "📋 Paste the key id:"
+	echo -n "> "
+	read KEY_ID
+}
+
 update_git_configs() {
 	# Sign commits by default
 	# TODO: refactor as multiple-choice to accomodate options for:
@@ -149,36 +158,88 @@ update_git_configs() {
 	#           -> cd $REPO_PATH && git config commit.gpgsign true &&
 	#           -> cd $CURRENT_PATH
 	#       (3) never -> break
-	echo -n "❔ Would you like to sign commits by default? (y/N) "
-	while true; do
-		read SIGN_BY_DEFAULT
-		case $SIGN_BY_DEFAULT in
-		[yY]*)
-			echo ${green_text}
-			git config --global commit.gpgsign true
-			echo ${reset_text}
-			echo "All commits will be signed by defult."
-			echo ${yellow_text}${bold_text}
-			echo "To disable, run"
-			echo "$ git config --global commit.gpgsign true"
-			echo ${reset_text}
-			break
-			;;
-		[nN]*)
-			echo "Commits will not be signed by defult."
-			echo ${yellow_text}${bold_text}
-			echo "Sign commits with:"
-			echo ">  git commit -S -m \"Your commit message\""
-			echo "Enable default commit signing with:"
-			echo ">  git config --global commit.gpgsign true"
-			echo ${reset_text}
-			break
-			;;
-		*)
-			echo "Invalid input"
-			;;
-		esac
-	done
+	while true
+    do
+	    PS3="What would you like to do? "
+    	config_actions=("Set a Key Up for Signing with Git" "Set Git to Sign By Default" "Nothing")
+		select config_action in "${config_actions[@]}"
+		do
+			case $config_action in
+				"Set a Key Up for Signing with Git")
+					prompt_for_key
+					echo "Selcted Key: $KEY_ID"
+					PS3="What would you like to do with this key? "
+					key_actions=("Set the Key for Global Signing" "Set the Key for a Single Repo" "Select a Different Key" "Nothing")
+					select key_action in "${key_actions[@]}"
+					do
+						case $key_action in
+							"Set the Key for Global Signing")
+								echo "${standout_text}TELLING GIT ABOUT KEY${rm_standout_text}"
+								git config --global user.signingkey $KEY_ID
+								break 2
+								;;
+							"Set the Key for a Single Repo")
+								echo "Enter the path to the repo: "
+								read REPO_PATH
+								CURRENT_PATH="$PWD"
+								cd $REPO_PATH && git config user.signingkey $KEY_ID
+								cd $CURRENT_PATH
+								break 2
+								;;
+							"Select a Different Key")
+								prompt_for_key
+								echo "Selcted Key: $KEY_ID"
+								;;
+							"Nothing")
+								break 2
+								;;
+							*)
+								echo "Invalid Option"
+								;;
+						esac
+					done
+					;;
+				"Set Git to Sign By Default")
+					while true; do
+						echo "Sign by default? (Y/N): "
+						read SIGN_BY_DEFAULT
+						case $SIGN_BY_DEFAULT in
+						[yY]*)
+							echo ${green_text}
+							git config --global commit.gpgsign true
+							echo ${reset_text}
+							echo "All commits will be signed by defult."
+							echo ${yellow_text}${bold_text}
+							echo "To disable, run"
+							echo "$ git config --global commit.gpgsign true"
+							echo ${reset_text}
+							break 2
+							;;
+						[nN]*)
+							echo "Commits will not be signed by defult."
+							echo ${yellow_text}${bold_text}
+							echo "Sign commits with:"
+							echo ">  git commit -S -m \"Your commit message\""
+							echo "Enable default commit signing with:"
+							echo ">  git config --global commit.gpgsign true"
+							echo ${reset_text}
+							break 2
+							;;
+						*)
+							echo "Invalid input"
+							;;
+						esac
+					done
+					;;
+				"Nothing")
+					break 2
+					;;
+				*)
+					echo "Invalid Option"
+					;;
+			esac
+		done
+    done
 }
 
 print_summary() {
@@ -233,6 +294,8 @@ actions=("List Keys" "Refresh keys" "Delete Keys" "Generate New Key" "Add Key to
 # While loop needed to force re-display of entire menu
 while true
 do
+	PS3="What would you like to do? "
+	actions=("List Keys" "Refresh keys" "Delete Keys" "Generate New Key" "Add Key to GitHub" "Update Git Configs" "Quit")
 	echo
 	select action in "${actions[@]}"
 	do
