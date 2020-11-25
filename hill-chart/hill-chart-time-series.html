@@ -1,0 +1,161 @@
+<canvas
+  id="myCanvas"
+  width="1000"
+  height="700"
+  style="border: 1px solid black; background-color: #222222"
+></canvas>
+<button onclick="nextStep()">Next</button>
+
+<script>
+  var c = document.getElementById("myCanvas");
+  var ctx = c.getContext("2d");
+
+  const HEIGHT = 700;
+  const WIDTH = 1000;
+  const COLOR_TRAIL_LENGTH = 8; // min 0, max 17
+
+  function Task(progress, color) {
+    return { progress, color };
+  }
+
+  function TaskSeries(color) {
+    return { tasks: [], color };
+  }
+
+  function TaskSeriesSet() {
+    return [];
+  }
+
+  const equifaxRed = "#980000";
+  const red = "#ff0000";
+  const orange = "#ff9900";
+  const yellow = "#ffff00";
+  const green = "#00ff00";
+  const cyan = "#00ffff";
+  const blue = "#0000ff";
+  const purple = "#9900ff";
+  const pink = "#ff00ff";
+
+  const colors = {
+    equifaxRed,
+    red,
+    orange,
+    yellow,
+    green,
+    cyan,
+    blue,
+    purple,
+    pink,
+  };
+
+  const getRandomInt = (min, max) => {
+    min = Math.ceil(min);
+    max = Math.floor(max);
+    return Math.floor(Math.random() * (max - min) + min); //The maximum is exclusive and the minimum is inclusive
+  };
+
+  // Init dataset
+  dataSet = TaskSeriesSet();
+
+  // Randomly generate data
+  const generateRandomTask = (prevTask) => {
+    return Task(
+      getRandomInt(prevTask.progress, Math.min(prevTask.progress + 30, 99)),
+      prevTask.color
+    );
+  };
+
+  const generateNData = (N) => {
+    for (let color in colors) {
+      let taskSeries = TaskSeries(colors[color]);
+      taskSeries.tasks.push(Task(0, taskSeries.color)); // Always start from 0
+      for (let i = 1; i < N + 1; i++) {
+        let task = generateRandomTask(taskSeries.tasks[i - 1]);
+        taskSeries.tasks.push(task);
+      }
+      // taskSeries.tasks.push(Task(99, taskSeries.color)); // Always finish at 99
+      dataSet.push(taskSeries);
+    }
+  };
+
+  const generateInitData = () => {
+    for (let color in colors) {
+      let taskSeries = TaskSeries(colors[color]);
+      taskSeries.tasks.push(Task(0, taskSeries.color)); // Always start from 0
+      dataSet.push(taskSeries);
+    }
+  };
+
+  const generateMoreData = () => {
+    dataSet.map((taskSeries, index) => {
+      taskSeries.tasks.push(
+        generateRandomTask(taskSeries.tasks[taskSeries.tasks.length - 1])
+      );
+    });
+  };
+
+  // Drawing helpers
+  const drawCircle = function (x, y, r, color) {
+    ctx.beginPath();
+    ctx.arc(x, y, r, 0, 2 * Math.PI, false);
+    ctx.fillStyle = color;
+    ctx.fill();
+    ctx.lineWidth = 1;
+    ctx.strokeStyle = "#999";
+    ctx.stroke();
+  };
+
+  const calculateXPosition = function (index) {
+    return 75 + 50 * index;
+  };
+
+  const calculateYPosition = (absolutePosition) => {
+    let relativePosition =
+      absolutePosition > 50 ? 50 - (absolutePosition % 50) : absolutePosition;
+
+    return HEIGHT - 10 * relativePosition - 75;
+  };
+
+  const calculateTaskColor = (task, index, taskListLength) => {
+    let indexHex =
+      index === 0
+        ? "0"
+        : index === taskListLength - 1
+        ? "f"
+        : Math.max(0, COLOR_TRAIL_LENGTH - taskListLength + index).toString(16);
+    return `${task.color}${indexHex + indexHex}`;
+  };
+
+  // Draw data
+  const updateCanvas = () => {
+    ctx.clearRect(0, 0, HEIGHT, WIDTH);
+    dataSet.map((taskSeries) => {
+      taskSeries.tasks.map((value, index) => {
+        let x = calculateXPosition(index);
+        let y = calculateYPosition(taskSeries.tasks[index].progress);
+        let color = calculateTaskColor(
+          taskSeries.tasks[index],
+          index,
+          taskSeries.tasks.length
+        );
+        drawCircle(x, y, 20, color);
+      });
+    });
+  };
+
+  // Main program
+  const init = () => {
+    generateInitData();
+    console.log(dataSet);
+    updateCanvas();
+  };
+
+  const nextStep = () => {
+    generateMoreData(step++);
+    updateCanvas();
+  };
+
+  let step = 1;
+
+  init();
+</script>
