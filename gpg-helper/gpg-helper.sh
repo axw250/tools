@@ -109,16 +109,22 @@ generate_new_key() {
 set_key() {
 	KEY="$1"
 	SET_GLOBAL="$2"
-	echo "${standout_text}TELLING GIT ABOUT KEY${rm_standout_text}"
 	if [ "$SET_GLOBAL" = "SET_GLOBAL" ]; then
 		git config --global user.signingkey $KEY
 	else
 		echo "Enter the path to the repo: "
 		read REPO_PATH
 		CURRENT_PATH="$PWD"
-		cd $REPO && git config user.signingkey $KEY
+		cd $REPO_PATH && git config user.signingkey $KEY
 		cd $CURRENT_PATH
+		if [ -z "$REPO_KEYS" ]; then	
+			REPO_KEYS="${REPO_PATH}: ${KEY}"
+		else
+			printf -v spaces ' %.0s' {1..22}
+			REPO_KEYS="${REPO_KEYS}"$'\n'"${spaces}${REPO_PATH}: ${KEY}"
+		fi
 	fi
+	echo "${standout_text}TELLING GIT ABOUT KEY${rm_standout_text}"
 }
 
 add_key_to_github() {
@@ -172,44 +178,58 @@ prompt_for_key() {
 	print_keys
 	echo "Copy the secret key ID from the list above."
 	print_example_keyid
-	echo "📋 Paste the key id:"
-	echo -n "> "
-	read KEY_ID
+	while true; do
+		echo "📋 Paste the key id:"
+		echo -n "> "
+		read KEY_ID
+		if [[ $KEY_ID =~ ^[[:xdigit:]]+$ ]]; then
+			break
+		else
+			echo "Invalid key \"$KEY_ID\", key should be a hexidecimal number."
+		fi
+	done
 }
 
 update_git_configs() {
+	config_actions=("Set a Key for Global Signing (All Repos)"
+				"Set a Key for Signing a Single Repo"
+				"Set Git to Sign By Default"
+				"Go Back")
 	while true
     do
-	    PS3="What would you like to do? "
-    	config_actions=("Set a Key Up for Signing with Git" "Set Git to Sign By Default" "Nothing")
 		select config_action in "${config_actions[@]}"
 		do
 			case $config_action in
-				"Set a Key Up for Signing with Git")
+				"Set a Key for Global Signing (All Repos)")
 					prompt_for_key
 					echo "Selcted Key: $KEY_ID"
-					PS3="What would you like to do with this key? "
-					key_actions=("Set the Key for Global Signing" "Set the Key for a Single Repo" "Select a Different Key" "Nothing")
-					select key_action in "${key_actions[@]}"
-					do
-						case $key_action in
-							"Set the Key for Global Signing")
+					while true; do
+						echo "Are you sure you want to use this key? " 
+						read yn
+						case $yn in
+							[yY]*)
 								set_key $KEY_ID "SET_GLOBAL"
 								break 2
 								;;
-							"Set the Key for a Single Repo")
-								set_key $NEW_KEY "SET_LOCAL"
+							[nN]*)
 								break 2
 								;;
-							"Select a Different Key")
-								prompt_for_key
-								echo "Selcted Key: $KEY_ID"
-								;;
-							"Nothing")
+						esac
+					done
+					;;
+				"Set a Key for Signing a Single Repo")
+					prompt_for_key
+					echo "Selcted Key: $KEY_ID"
+					while true; do
+						echo "Are you sure you want to use this key? " 
+						read yn
+						case $yn in
+							[yY]*)
+								set_key $KEY_ID "SET_LOCAL"
 								break 2
 								;;
-							*)
-								echo "Invalid Option"
+							[nN]*)
+								break 2
 								;;
 						esac
 					done
@@ -246,7 +266,7 @@ update_git_configs() {
 						esac
 					done
 					;;
-				"Nothing")
+				"Go Back")
 					break 2
 					;;
 				*)
@@ -261,9 +281,13 @@ print_summary() {
 	# Summary
 	echo
 	echo "${standout_text}SUMMARY${rm_standout_text}"
-	echo "Deleted key(s): ${red_text}$OLD_KEYS${reset_text}"
-	echo "New key: ${green_text}$NEW_KEY${reset_text}"
-	echo "Sign commits by default: ${blue_text}${SIGN_BY_DEFAULT}${reset_text}"
+	[ ! -z "$OLD_KEYS" ] && echo "Deleted key(s): ${red_text}$OLD_KEYS${reset_text}"
+	[ ! -z "$NEW_KEY" ] && echo "New key: ${green_text}$NEW_KEY${reset_text}"
+	GLOBAL_SIGNING_KEY=$(git config --get user.signingkey)
+	[ ! -z "$GLOBAL_SIGNING_KEY" ] && echo "Global Signing Key: ${yellow_text}${GLOBAL_SIGNING_KEY}${reset_text}"
+	[ ! -z "$REPO_KEYS" ] && echo "Repo-Specific Key(s): ${orange_text}${REPO_KEYS}${reset_text}"
+	SIGN_BY_DEFAULT=$(git config --get commit.gpgsign)
+	[ ! -z "$SIGN_BY_DEFAULT" ] && echo "Sign commits by default: ${blue_text}${SIGN_BY_DEFAULT}${reset_text}"
 }
 
 #####################################################################
