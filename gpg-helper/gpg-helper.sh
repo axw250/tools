@@ -1,20 +1,61 @@
 #!/bin/bash
 
 print_version() {
-	echo "Version: 0.0.4"
+	echo "Version: 0.0.5"
 }
 
 print_keys() {
 	# Print current keys
 	echo ${cyan_text}
 	echo "${standout_text}GPG SIGNING KEYS LIST${rm_standout_text}"
+	#? should we print BOTH public and secret keys? should we give users the choice?
 	gpg --list-secret-keys --keyid-format LONG
 	echo ${reset_text}
 }
 
 refresh_keys() {
-    # TODO: Refresh expired key (e.g. gpg --edit-key <key_id>)
-    echo "Which key would you like to refresh?"
+	print_keys
+
+	echo
+	echo "${standout_text}REFRESH KEY EXPIRY${rm_standout_text}"
+	echo "Copy secret key ID(s) from the list above."
+	print_example_keyid
+
+	echo "📋 Paste all key ids you would like to refresh (separated by spaces):"
+	echo -n "> "
+	read KEYS_TO_REFRESH
+
+	for key in $KEYS_TO_REFRESH; do
+		echo -n "❓ Would you like to refresh ${green_text}$key${reset_text}? (y/N) "
+		while true; do
+			read REFRESH
+			case $REFRESH in
+			[yY]*)
+				echo ${cyan_text}
+				echo "${standout_text}GPG EDIT KEY EXPIRY DIALOG${rm_standout_text}"
+				echo ${yellow_text}${bold_text}
+				echo "Recipe:"
+				echo "> 90 (days)"
+				echo "> Yes"
+				echo "> Save"
+				echo ${reset_text}
+				
+				echo ${cyan_text}
+				gpg --edit-key $key expire
+				echo ${reset_text}
+				# TODO: read exit code (i.e. case $1 in... esac) to handle deletion completion message (i.e. deletion successful vs aborted)
+				break
+				;;
+			[nN]*)
+				echo "Not refreshing key expiry"
+				break
+				;;
+			*)
+				echo "Invalid input"
+				;;
+			esac
+		done
+	done
 }
 
 print_example_keyid() {
@@ -292,8 +333,9 @@ print_summary() {
 	# Summary
 	echo
 	echo "${standout_text}SUMMARY${rm_standout_text}"
-	[ ! -z "$OLD_KEYS" ] && echo "Deleted key(s): ${red_text}$OLD_KEYS${reset_text}"
 	[ ! -z "$NEW_KEY" ] && echo "New key: ${green_text}$NEW_KEY${reset_text}"
+	[ ! -z "$KEYS_TO_REFRESH" ] && echo "Refreshed key(s) ${yellow_text}$KEYS_TO_REFRESH${reset_text}"
+	[ ! -z "$OLD_KEYS" ] && echo "Deleted key(s): ${red_text}$OLD_KEYS${reset_text}"
 	GLOBAL_SIGNING_KEY=$(git config --get user.signingkey)
 	[ ! -z "$GLOBAL_SIGNING_KEY" ] && echo "Global Signing Key: ${yellow_text}${GLOBAL_SIGNING_KEY}${reset_text}"
 	[ ! -z "$REPO_KEYS" ] && echo "Repo-Specific Key(s): ${orange_text}${REPO_KEYS}${reset_text}"
@@ -339,7 +381,7 @@ echo "${cyan_text}GPG output${reset_text}"
 #       (5) Review current key(s) and configsprint_keys
 
 PS3="What would you like to do? "
-actions=("List Keys" "Refresh keys" "Delete Keys" "Generate New Key" "Add Key to GitHub" "Update Git Configs" "Quit")
+actions=("List Keys" "Refresh Keys" "Delete Keys" "Generate New Key" "Add Key to GitHub" "Update Git Configs" "Quit")
 
 # While loop needed to force re-display of entire menu
 while true
