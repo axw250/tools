@@ -107,6 +107,8 @@ generate_new_key() {
 }
 
 set_key() {
+	# TODO: error handling (i.e. if path does not contain a Git repo)
+	# TODO: instructions for path (e.g. no path => current repo)
 	KEY="$1"
 	SET_GLOBAL="$2"
 	if [ "$SET_GLOBAL" = "SET_GLOBAL" ]; then
@@ -157,13 +159,16 @@ add_key_to_github() {
 	key_options=("Set the key to sign globally" "Set the key to sign for a single repo" "Nothing")
 	select key_option in "${key_options[@]}"
 	do
+		echo
 		case $key_option in
 			"Set the key to sign globally")
 				set_key $NEW_KEY "SET_GLOBAL"
+				echo "Successfully set ${green_text}$KEY_ID${reset_text} as global signing key"
 				break
 				;;
 			"Set the key to sign for a single repo")
 				set_key $NEW_KEY "SET_LOCAL"
+				echo "Successfully set ${green_text}$KEY_ID${reset_text} as local signing key"
 				break
 				;;
 			"Nothing")
@@ -182,6 +187,7 @@ prompt_for_key() {
 		echo "📋 Paste the key id:"
 		echo -n "> "
 		read KEY_ID
+		# TODO: exception for "" (i.e. if user wants to exit)
 		if [[ $KEY_ID =~ ^[[:xdigit:]]+$ ]]; then
 			break
 		else
@@ -192,43 +198,48 @@ prompt_for_key() {
 
 update_git_configs() {
 	config_actions=("Set a Key for Global Signing (All Repos)"
-				"Set a Key for Signing a Single Repo"
+				"Set a Key for Local Signing (Single Repo)"
 				"Set Git to Sign By Default"
 				"Go Back")
 	while true
     do
+		echo
 		select config_action in "${config_actions[@]}"
 		do
 			case $config_action in
 				"Set a Key for Global Signing (All Repos)")
 					prompt_for_key
-					echo "Selcted Key: $KEY_ID"
+					echo "Selected Key: ${yellow_text}$KEY_ID${reset_text}"
 					while true; do
-						echo "Are you sure you want to use this key? " 
+						echo -n "Are you sure you want to use this key? (y/N) " 
 						read yn
 						case $yn in
 							[yY]*)
 								set_key $KEY_ID "SET_GLOBAL"
+								echo "Successfully set ${green_text}$KEY_ID${reset_text} as global signing key"
 								break 2
 								;;
 							[nN]*)
+								echo "Set global signing key aborted."
 								break 2
 								;;
 						esac
 					done
 					;;
-				"Set a Key for Signing a Single Repo")
+				"Set a Key for Local Signing (Single Repo)")
 					prompt_for_key
-					echo "Selcted Key: $KEY_ID"
+					echo "Selected Key: ${yellow_text}$KEY_ID${reset_text}"
 					while true; do
-						echo "Are you sure you want to use this key? " 
+						echo -n "Are you sure you want to use this key? (y/N) " 
 						read yn
 						case $yn in
 							[yY]*)
 								set_key $KEY_ID "SET_LOCAL"
+								echo "Successfully set ${green_text}$KEY_ID${reset_text} as local signing key"
 								break 2
 								;;
 							[nN]*)
+								echo "Set local signing key aborted."
 								break 2
 								;;
 						esac
@@ -236,7 +247,7 @@ update_git_configs() {
 					;;
 				"Set Git to Sign By Default")
 					while true; do
-						echo "Sign by default? (Y/N): "
+						echo -n "Sign by default? (y/N) "
 						read SIGN_BY_DEFAULT
 						case $SIGN_BY_DEFAULT in
 						[yY]*)
