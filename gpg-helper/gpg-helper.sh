@@ -1,7 +1,7 @@
 #!/bin/bash
 
 print_version() {
-	echo "Version: 0.0.5"
+	echo "Version: 0.2.0"
 }
 
 print_keys() {
