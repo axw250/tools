@@ -26,6 +26,12 @@ This tool implements the [mermaid-cli](https://github.com/mermaidjs/mermaid.cli)
 
 3. Check that it worked: a new file named `output.svg` should appear in the `output/` directory. Open it in your browser to view.
 
+   Windows:
+
+   ```
+   start chrome output/output.svg
+   ```
+
 ## Future Work
 
 | Task               | Description                                                                                                                 |
