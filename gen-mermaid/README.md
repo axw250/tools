@@ -12,7 +12,11 @@ This tool implements the [mermaid-cli](https://github.com/mermaidjs/mermaid.cli)
 
 ## Usage
 
-1. Copy the mermaid (.mmd) file to the input folder.
+1. Copy the mermaid (.mmd) file to the `input/` directory.
+
+   ```
+   cp path/to/your/mermaid_document.mmd ./input
+   ```
 
 2. Run the generate script.
 
