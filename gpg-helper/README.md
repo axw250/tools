@@ -52,13 +52,13 @@ Bonus: check out the new [Windows Terminal](https://github.com/microsoft/termina
 | Capability                                                                                                                             | Development progress |
 | -------------------------------------------------------------------------------------------------------------------------------------- | -------------------- |
 | List current key(s)                                                                                                                    | Done ✅              |
-| Refresh expired key(s)                                                                                                                 | To-do 🆕             |
+| Refresh expired key(s)                                                                                                                 | Done ✅              |
 | Delete local key(s)                                                                                                                    | Done ✅              |
 | Generate (and capture) new key                                                                                                         | Done ✅              |
 | Add key(s) to GitHub (instructions for manual addition)                                                                                | Done ✅              |
 | Add key(s) to GitHub ([programmatically](https://developer.github.com/v3/users/gpg_keys/#create-a-gpg-key-for-the-authenticated-user)) | To-do 🆕             |
 | Add key(s) to other remote (BitBucket, GitLab, etc.)                                                                                   | To-do 🆕             |
 | Add key to Git (globally)                                                                                                              | Done ✅              |
-| Add key to Git (specific local repos)                                                                                                  | To-do 🆕             |
+| Add key to Git (specific local repos)                                                                                                  | In progress 🟨       |
 | Configure default commit signing                                                                                                       | Done ✅              |
-| Menu loop for dynamic user interaction                                                                                                 | To-do 🆕             |
+| Menu loop for dynamic user interaction                                                                                                 | Done ✅              |

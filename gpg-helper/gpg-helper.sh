@@ -373,13 +373,6 @@ echo "GSKB main output"
 echo "${yellow_text}${bold_text}Example output${reset_text}"
 echo "${cyan_text}GPG output${reset_text}"
 
-# TODO: read user input for what actions to take
-#       (1) Generate new key(s)
-#       (2) Refresh expired key(s)
-#       (3) Delete existing key(s)
-#       (4) Update Git signingkey defaults (global and repo-specific)
-#       (5) Review current key(s) and configsprint_keys
-
 PS3="What would you like to do? "
 actions=("List Keys" "Refresh Keys" "Delete Keys" "Generate New Key" "Add Key to GitHub" "Update Git Configs" "Quit")
 
